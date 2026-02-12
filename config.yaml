@@ -1,0 +1,46 @@
+# NeuroRecon Configuration File
+
+# Data Ingestion Settings
+data_ingestion:
+  switch_log_path: "data/input/switch_logs.csv"
+  cbs_ledger_path: "data/input/cbs_ledgers.csv"
+  output_path: "data/output/"
+  
+# Reconciliation Settings
+reconciliation:
+  # Rule-Based Matching
+  exact_match_fields:
+    - "transaction_id"
+    - "amount"
+  
+  # Fuzzy Matching Parameters
+  fuzzy_matching:
+    enabled: true
+    timestamp_tolerance_seconds: 300  # 5 minutes
+    similarity_threshold: 85  # Minimum similarity score (0-100)
+    
+  # AI/ML Settings
+  ml_settings:
+    isolation_forest:
+      contamination: 0.1  # Expected proportion of outliers
+      n_estimators: 100
+      random_state: 42
+    
+    anomaly_threshold: -0.5  # Score threshold for anomaly detection
+
+# Reporting Settings
+reporting:
+  settlement_file_name: "settlement_report.csv"
+  dashboard_file_name: "predictive_dashboard.html"
+  
+  # Forecasting Settings
+  forecasting:
+    enabled: true
+    forecast_days: 7
+    atm_cash_threshold: 10000  # Minimum cash level alert
+
+# Logging Settings
+logging:
+  level: "INFO"
+  log_file: "logs/neurorecon.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
