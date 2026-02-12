@@ -18,10 +18,19 @@ def load_config(config_path: str = 'config.yaml') -> Dict[str, Any]:
         
     Returns:
         Configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If configuration file doesn't exist
     """
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    return config
+    try:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        return config
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"Configuration file not found at {config_path}. "
+            f"Please ensure config.yaml exists."
+        )
 
 
 def setup_logging(config: Dict[str, Any]) -> logging.Logger:

@@ -5,6 +5,9 @@ AI-Enhanced Automated Reconciliation System for ATM and POS Networks
 
 import sys
 import os
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -110,10 +113,6 @@ def main():
 
 def generate_sample_data(switch_path: str, cbs_path: str):
     """Generate sample data for demonstration"""
-    import pandas as pd
-    import numpy as np
-    from datetime import datetime, timedelta
-    
     # Create directories
     os.makedirs(os.path.dirname(switch_path), exist_ok=True)
     

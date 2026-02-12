@@ -3,6 +3,8 @@ Hybrid Reconciliation Engine for NeuroRecon
 Combines Rule-Based Matching with AI/ML-based Anomaly Detection
 """
 
+import os
+import json
 import pandas as pd
 import numpy as np
 from fuzzywuzzy import fuzz
@@ -341,8 +343,6 @@ class ReconciliationEngine:
         Args:
             output_path: Directory path for output files
         """
-        import os
-        
         os.makedirs(output_path, exist_ok=True)
         
         # Export matched transactions
@@ -369,7 +369,6 @@ class ReconciliationEngine:
             )
         
         # Export summary
-        import json
         with open(f"{output_path}/reconciliation_summary.json", 'w') as f:
             json.dump(self.reconciliation_summary, f, indent=2)
         

@@ -6,7 +6,7 @@ Includes Anomaly Detection using Isolation Forest
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 import logging
 from typing import Dict, List, Tuple
 import joblib
@@ -44,6 +44,11 @@ class AnomalyDetector:
         self.anomaly_threshold = ml_config.get('anomaly_threshold', -0.5)
         self.is_fitted = False
         
+        # Initialize label encoders for categorical features
+        self.atm_encoder = LabelEncoder()
+        self.location_encoder = LabelEncoder()
+        self.encoders_fitted = False
+        
     def prepare_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Prepare features for anomaly detection
@@ -72,11 +77,28 @@ class AnomalyDetector:
         
         # Location-based features (if available)
         if 'atm_id' in df.columns:
-            # Encode ATM ID as a hash (simple numerical encoding)
-            features['atm_encoded'] = df['atm_id'].apply(lambda x: hash(str(x)) % 10000)
+            # Use deterministic label encoding instead of hash
+            if not self.encoders_fitted:
+                features['atm_encoded'] = self.atm_encoder.fit_transform(df['atm_id'].astype(str))
+            else:
+                # Handle unseen labels during prediction
+                known_labels = set(self.atm_encoder.classes_)
+                atm_values = df['atm_id'].astype(str).apply(
+                    lambda x: x if x in known_labels else 'unknown'
+                )
+                features['atm_encoded'] = self.atm_encoder.transform(atm_values)
         
         if 'location' in df.columns:
-            features['location_encoded'] = df['location'].apply(lambda x: hash(str(x)) % 10000)
+            # Use deterministic label encoding instead of hash
+            if not self.encoders_fitted:
+                features['location_encoded'] = self.location_encoder.fit_transform(df['location'].astype(str))
+            else:
+                # Handle unseen labels during prediction
+                known_labels = set(self.location_encoder.classes_)
+                location_values = df['location'].astype(str).apply(
+                    lambda x: x if x in known_labels else 'unknown'
+                )
+                features['location_encoded'] = self.location_encoder.transform(location_values)
         
         # Transaction type features (if available)
         if 'transaction_type' in df.columns:
@@ -114,6 +136,7 @@ class AnomalyDetector:
         # Fit model
         self.model.fit(features_scaled)
         self.is_fitted = True
+        self.encoders_fitted = True
         
         self.logger.info(f"Model trained on {len(features)} samples with {features.shape[1]} features")
         
