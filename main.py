@@ -137,11 +137,14 @@ def generate_sample_data(switch_path: str, cbs_path: str):
     
     # Generate CBS ledgers (with 90% match rate)
     cbs_records = int(n_records * 0.9)
-    cbs_data = switch_data.copy()
     
-    # Take first 90% as matched
-    for key in cbs_data:
-        cbs_data[key] = cbs_data[key][:cbs_records]
+    # Convert switch data to lists and take first 90%
+    cbs_data = {}
+    for key in switch_data:
+        if isinstance(switch_data[key], np.ndarray):
+            cbs_data[key] = switch_data[key][:cbs_records].tolist()
+        else:
+            cbs_data[key] = list(switch_data[key][:cbs_records])
     
     # Add some slight timestamp variations for fuzzy matching
     for i in range(10, 20):
@@ -150,19 +153,12 @@ def generate_sample_data(switch_path: str, cbs_path: str):
     
     # Add some unique CBS records
     for i in range(5):
-        for key in cbs_data:
-            if key == 'transaction_id':
-                cbs_data[key].append(f"CBS{str(i).zfill(6)}")
-            elif key == 'timestamp':
-                cbs_data[key].append(base_time + timedelta(hours=np.random.randint(1, 100)))
-            elif key == 'amount':
-                cbs_data[key].append(round(np.random.uniform(50, 3000), 2))
-            elif key == 'atm_id':
-                cbs_data[key].append(f"ATM{np.random.randint(1, 11):03d}")
-            elif key == 'location':
-                cbs_data[key].append(np.random.choice(['Downtown', 'Mall', 'Airport', 'Station']))
-            elif key == 'transaction_type':
-                cbs_data[key].append(np.random.choice(['Withdrawal', 'Deposit', 'Balance']))
+        cbs_data['transaction_id'].append(f"CBS{str(i).zfill(6)}")
+        cbs_data['timestamp'].append(base_time + timedelta(hours=np.random.randint(1, 100)))
+        cbs_data['amount'].append(round(np.random.uniform(50, 3000), 2))
+        cbs_data['atm_id'].append(f"ATM{np.random.randint(1, 11):03d}")
+        cbs_data['location'].append(np.random.choice(['Downtown', 'Mall', 'Airport', 'Station']))
+        cbs_data['transaction_type'].append(np.random.choice(['Withdrawal', 'Deposit', 'Balance']))
     
     cbs_df = pd.DataFrame(cbs_data)
     cbs_df.to_csv(cbs_path, index=False)

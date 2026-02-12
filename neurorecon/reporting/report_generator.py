@@ -182,7 +182,12 @@ class ReportingModule:
             Forecast dictionary
         """
         if 'amount' not in atm_data.columns or len(atm_data) < 7:
-            return {'predicted_usage': 0, 'shortage_risk': 'low'}
+            return {
+                'predicted_daily_usage': 0,
+                'predicted_weekly_usage': 0,
+                'shortage_risk': 'low',
+                'recommendation': self._get_recommendation('low')
+            }
         
         # Calculate daily average
         atm_data['date'] = pd.to_datetime(atm_data['timestamp']).dt.date
